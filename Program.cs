@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+
+// 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<IMeetingService, DbMeetingService>();
@@ -13,8 +15,6 @@ builder.Services.AddScoped<IPossibleToAddService, DbPossibleToAddService>();
 builder.Services.AddScoped<IEmployeeService, DbEmployeeService>();
 builder.Services.AddScoped<IOrganizerService, DbOrganizerService>();
 builder.Services.AddScoped<IMeetingEmployeeService, DbMeetingEmployeeService>();
-
-
 
 
 builder.Services.AddDbContext<MeetingApplicationContext>(options =>
