@@ -7,5 +7,6 @@ namespace MeetingApplication.Interfaces
     public interface IMeetingService
     {
         public IList<MeetingDTO> GetMeetings();
+        public IList<MeetingDTO> GetMeetingsUnited();
     }
 }

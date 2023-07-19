@@ -1,104 +1,70 @@
 ﻿using MeetingApplication.DTO;
 using MeetingApplication.Entities;
 using MeetingApplication.Interfaces;
+using MeetingApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeetingApplication.Controllers
 {
     [ApiController]
-    public class MeetingEmployeesController : Controller
+    [Route("[controller]")]
+    public class MeetingEmployeeController : Controller
     {
         private readonly IMeetingEmployeeService meetingEmployeeService;
-        private readonly MeetingApplicationContext context; //
 
-        public MeetingEmployeesController(IMeetingEmployeeService meetingEmployeeService,/**/ MeetingApplicationContext context/**/)
+        public MeetingEmployeeController(IMeetingEmployeeService meetingEmployeeService)
         {
             this.meetingEmployeeService = meetingEmployeeService;
-            this.context = context; //
         }
-        [Route("MeetingEmployees/GetMeetingEmployee")]
+
+        // получить список MeetingEmployee
+        [HttpGet("GetMeetingEmployee")]
         public IList<MeetingEmployeeDTO> GetMeetingEmployee()
         {
             return meetingEmployeeService.GetMeetingEmployee();
         }
 
-        [HttpGet]
-        [Route("MeetingEmployees/AddMeetingEmployee")]
-        public void AddMeetingEmployee(int meetingId, int employeeId, int roleId)
+        // добавить новую запись в MeetingEmployee
+        [HttpPost("AddMeetingEmployee")]
+        public void AddMeetingEmployee()
         {
-            //if (roleId == 1)
-            //{
-            //    if (EmployeeInAnotherMeetingCheck(meetingId, employeeId) && PossibleToAdd(meetingId, roleId))
-            //    {
-            //        meetingEmployeeService.AddMeetingEmployee(meetingId, employeeId, roleId);
-            //        Console.WriteLine("Запись в таблицу MeetingEmployee завершилась удачно");
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("Неудачная попытка записи в таблицу MeetingEmloyee");
-            //    }
-            //}
-            //else
-            //{
-            //    if (EmployeeInAnotherMeetingCheck(meetingId, employeeId))
-            //    {
-            //        meetingEmployeeService.AddMeetingEmployee(meetingId, employeeId, roleId);
-            //        Console.WriteLine("Запись в таблицу MeetingEmployee завершилась удачно");
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("Неудачная попытка записи в таблицу MeetingEmloyee");
-            //    }
-            //}
+            var data = new MeetingEmployeeDTO
+            {
+                MeetingId = 3,
+                EmployeeId = 4,
+                RoleId = 3,
+            };
+            meetingEmployeeService.AddMeetingEmployee(data.MeetingId, data.EmployeeId, data.RoleId);
         }
 
-        //// проверка находится ли сотрудник в данный момент на другом совещании
-        //private bool EmployeeInAnotherMeetingCheck(int employeeId)
-        //{
-        //    //MeetingEmployeeDTO meetingEmployeeDTO = new MeetingEmployeeDTO() { };
-        //    List<MeetingEmployee> meetingEmployees = new List<MeetingEmployee> { };
-        //    List<Meeting> meetings = new List<Meeting> { };
-        //    foreach (var i in context.MeetingEmployees)
-        //    {
-        //        if(i.EmployeeId == employeeId)
-        //        {
-        //            meetingEmployees.Add(i);
-        //        }
-        //    }
-        //    foreach(var i in context.Meetings)
-        //    {
-                
-        //    }
-            
-        //}
-        //// проверка можно ли добавить сотрудника с определенным id в совещание
-        //private bool PossibleToAdd(int meetingId, int roleId)
-        //{
-        //    List<MeetingEmployeeDTO> meetingEmployee = context.MeetingEmployees.Select(x => new MeetingEmployeeDTO
-        //    {
-        //        Id = x.Id,
-        //        MeetingId = x.MeetingId,
-        //        EmployeeId = x.EmployeeId,
-        //        RoleId = x.RoleId,
-        //    }).ToList();
+        // проверка можно ли добавить организатора в совещание
+        [HttpGet("PossibleToAddOrganizer")]
+        public bool PossibleToAddOrganizer()
+        {
+            var data = new MeetingEmployeeDTO
+            {
+                MeetingId = 1
+            };
+            return meetingEmployeeService.PossibleToAddOrganizer(data.MeetingId);
+        }
 
-        //    int count = 0;
-        //    foreach (MeetingEmployeeDTO employee in meetingEmployee)
-        //    {
-        //        if (employee.MeetingId == meetingId && employee.RoleId == roleId)
-        //        {
-        //            count += 1;
-        //        }
-        //    }
-        //    if (count >= 1)
-        //    {
-        //        return false;
-        //    }
-        //    else
-        //    {
-        //        return true;
-        //    }
-        //}
+        // проверка находится ли сотрудник в данный момент на другом совещании
+        [HttpGet("EmployeeInAnotherMeetingCheck")]
+        public bool EmployeeInAnotherMeetingCheck()
+        {
+            var data = new MeetingEmployeeDTO
+            {
+                EmployeeId = 1,
+            };
+            return meetingEmployeeService.EmployeeInAnotherMeetingCheck(data.EmployeeId);
+        }
+
+        // получить организатора совещания
+        [HttpGet("GetOrganizer")]
+        public EmployeeDTO? GetOrganizer(int meetingId)
+        {
+            return meetingEmployeeService.GetOrganizer(meetingId);
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using MeetingApplication.Entities;
+using MeetingApplication.Interfaces;
+using MeetingApplication.DTO;
 
 public class MeetingApplicationContext : DbContext
 {

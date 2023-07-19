@@ -13,6 +13,7 @@ namespace MeetingApplication.Services
         {
             this.context = context;
         }
+
         // метод возврата таблицы Meeting в виде списка
         public IList<MeetingDTO> GetMeetings()
         {
@@ -23,13 +24,45 @@ namespace MeetingApplication.Services
                 Time = Math.Floor(((TimeSpan)(x.EndDate - x.StartDate)).TotalMinutes) 
             }).ToList();
         }
-        // метод добавления 
-        public void AddMeetings()
-        {
-            context.AddRange(new Meeting()
-            {
 
-            });
+        // метод возврата таблицы Meeting в виде списка без пауз
+        public IList<MeetingDTO> GetMeetingsUnited()
+        {
+            List<MeetingDTO> meetings = context.Meetings.Select(x => new MeetingDTO
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Time = Math.Floor(((TimeSpan)(x.EndDate - x.StartDate)).TotalMinutes)
+            }).ToList();
+            List<MeetingDTO> outputList = new List<MeetingDTO> { };
+            foreach (MeetingDTO meeting in meetings)
+            {
+                bool flag = true;
+                if (outputList.Select(x => x.Name).Contains(meeting.Name))
+                {
+                    flag = false;
+                }
+                if (flag == true)
+                {
+                    outputList.Add(new MeetingDTO
+                    {
+                        Name = meeting.Name,
+                        Time = 0,
+                    });
+                }
+            }
+            foreach (MeetingDTO output in outputList)
+            {
+                foreach (MeetingDTO i in meetings)
+                {
+                    if (i.Name == output.Name)
+                    {
+                        output.Time += i.Time;
+                    }
+                }
+            }
+            return outputList.ToList();
         }
+
     }
 }

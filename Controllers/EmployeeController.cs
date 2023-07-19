@@ -6,16 +6,17 @@ namespace MeetingApplication.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EmployeesController : Controller
+    public class EmployeeController : Controller
     {
         private readonly IEmployeeService employeeService;
-
-        public EmployeesController(IEmployeeService employeeService)
+        public EmployeeController(IEmployeeService employeeService)
         {
             this.employeeService = employeeService;
         }
 
-        public IList<EmployeeDTO> Employee()
+        [HttpGet("GetEmployees")]
+        // получить список сотрудников
+        public IList<EmployeeDTO> GetEmployees()
         {
             return employeeService.GetEmployees();
         }

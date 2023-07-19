@@ -10,5 +10,11 @@ namespace MeetingApplication.Services
         {
             return new List<MeetingDTO> { new MeetingDTO { Id = 1, Name = "Name1"} };
         }
+
+        public IList<MeetingDTO> GetMeetingsUnited()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

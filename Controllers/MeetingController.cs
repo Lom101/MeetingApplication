@@ -9,19 +9,27 @@ namespace MeetingApplication.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class MeetingsController : Controller
+    public class MeetingController : Controller
     {
         private readonly IMeetingService meetingService;
 
-        public MeetingsController(IMeetingService meetingService)
+        public MeetingController(IMeetingService meetingService)
         {
             this.meetingService = meetingService;
         }
 
-        public IList<MeetingDTO> Meeting()
+        // получить список совещаний
+        [HttpGet("GetMeetings")]
+        public IList<MeetingDTO> GetMeetings()
         {
             return meetingService.GetMeetings();
         }
 
+        // получить список совещаний
+        [HttpGet("GetMeetingsUnited")]
+        public IList<MeetingDTO> GetMeetingsUnited()
+        {
+            return meetingService.GetMeetingsUnited();
+        }
     }
 }
