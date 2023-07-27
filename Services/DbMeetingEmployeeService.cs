@@ -1,6 +1,7 @@
 ﻿using MeetingApplication.DTO;
 using MeetingApplication.Entities;
 using MeetingApplication.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MeetingApplication.Services
 {
@@ -30,119 +31,97 @@ namespace MeetingApplication.Services
         public void AddMeetingEmployee(int meetingId, int employeeId, int roleId)
         {
             // если роль участника совещания - организатор
-            if (roleId == 1)
+            if (roleId == 1 && (EmployeeInAnotherMeetingCheck(employeeId) == false) && (PossibleToAddOrganizerCheck(meetingId) == true))
             {
-                // то дополнительно проверяем нет ли еще организаторов в совещании
-                if ((EmployeeInAnotherMeetingCheck(employeeId) == false) && (PossibleToAddOrganizer(meetingId) == true))
+                MeetingEmployee meetingEmployee = new MeetingEmployee()
                 {
-                    context.MeetingEmployees.AddRange(new MeetingEmployee()
-                    {
-                        MeetingId = meetingId,
-                        EmployeeId = employeeId,
-                        RoleId = roleId
-                    });
-                    context.SaveChanges();
-                    Console.WriteLine("Запись в таблицу MeetingEmployee завершилась удачно");
-                }
+                    Id = context.MeetingEmployees.OrderBy(x => x.Id).Last().Id + 1,
+                    MeetingId = meetingId,
+                    EmployeeId = employeeId,
+                    RoleId = roleId
+                };
+                context.MeetingEmployees.AddRange(meetingEmployee);
+                context.SaveChanges();
             }
             // если роль учаснтика совещания - не организатор
-            else
+            else if (roleId != 1 && EmployeeInAnotherMeetingCheck(employeeId) == false)
             {
-                // проверяем не находится ли он на другом совещании в данный момент
-                if (EmployeeInAnotherMeetingCheck(employeeId) == false)
+                MeetingEmployee meetingEmployee = new MeetingEmployee()
                 {
-                    context.MeetingEmployees.AddRange(new MeetingEmployee()
-                    {
-                        MeetingId = meetingId,
-                        EmployeeId = employeeId,
-                        RoleId = roleId
-                    });
-                    context.SaveChanges();
-                    Console.WriteLine("Запись в таблицу MeetingEmployee завершилась удачно");
-                }
+                    Id = context.MeetingEmployees.OrderBy(x => x.Id).Last().Id + 1,
+                    MeetingId = meetingId,
+                    EmployeeId = employeeId,
+                    RoleId = roleId
+                };
+                context.MeetingEmployees.AddRange(meetingEmployee);
+                context.SaveChanges();
             }
         }
 
-        // узнать есть ли возможность добавить организатора в совещание
-        public bool PossibleToAddOrganizer(int meetingId)
+        //метод удаления записи в MeetingEmployee
+        public void DeleteMeetingEmployee(int id)
         {
-            // если значения не переданы
-            if (meetingId == 0)
+            MeetingEmployee meetingEmployee = context.MeetingEmployees.First(x => x.Id == id);
+            context.MeetingEmployees.Remove(meetingEmployee);
+            context.SaveChanges();
+        }
+
+        // узнать есть ли возможность добавить организатора в совещание
+        public bool PossibleToAddOrganizerCheck(int meetingId)
+        {
+            // если совещания с id равным meetingId не существует
+            if(context.MeetingEmployees.Any(x => x.MeetingId == meetingId) == false)
             {
+                throw new Exception($"Совещания с id = {meetingId} не существует");
+            }
+            if(context.MeetingEmployees.Any(x => x.MeetingId == meetingId && x.RoleId == 1))
+            {
+                Console.WriteLine($"В совещании с id = {meetingId} уже есть организатор");
                 return false;
             }
-            List<MeetingEmployeeDTO> meetingEmployee = context.MeetingEmployees.Select(x => new MeetingEmployeeDTO
+            else
             {
-                Id = x.Id,
-                MeetingId = x.MeetingId,
-                EmployeeId = x.EmployeeId,
-                RoleId = x.RoleId,
-            }).ToList();
-
-            foreach (MeetingEmployeeDTO employee in meetingEmployee)
-            {
-                // если совещание нужное нам и роль сотрудника - организатор
-                if (employee.MeetingId == meetingId && employee.RoleId == 1)
-                {
-                    // значит организатор уже есть
-                    return false;
-                }
+                return true;
             }
-            return true;
         }
 
         // проверка находится ли сотрудник в данный момент на другом совещании
         public bool EmployeeInAnotherMeetingCheck(int employeeId)
         {
-            List<MeetingEmployee> meetingEmployee = context.MeetingEmployees.Select(x => new MeetingEmployee
+            // если сотрудника с id равным employeeId не существует
+            if (context.Employees.Any(x => x.Id == employeeId) == false)
             {
-                Id = x.Id,
-                MeetingId = x.MeetingId,
-                EmployeeId = x.EmployeeId,
-                RoleId = x.RoleId,
-            }).ToList();
-
-            foreach (MeetingEmployee i in meetingEmployee)
-            {
-                // находим нужного сотрудника
-                if (i.EmployeeId == employeeId)
-                {
-                    // совещание на котором присутствовал/присутствует сотрудник
-                    Meeting meeting = context.Meetings.First(x => x.Id == i.MeetingId);
-                    // если совещание еще идет
-                    if (meeting.StartDate < DateTime.Now && meeting.EndDate > DateTime.Now)
-                    {
-                        return true;    
-                    }
-                        
-                }
+                throw new Exception($"Сотрудника с id = {employeeId} не существует");
             }
-            return false;
+            if (context.MeetingEmployees.Any(x => (x.EmployeeId == employeeId && context.Meetings
+            .Any(i => (i.Id == x.MeetingId && i.StartDate < DateTime.Now && i.EndDate > DateTime.Now)))))
+            {
+                Console.WriteLine($"Сотрудник с id = {employeeId} в данный момент находится на другом совещании");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         // получить организатора совещания
-        public EmployeeDTO? GetOrganizer(int meetingId)
+        public EmployeeDTO GetOrganizer(int meetingId)
         {
-            int tempId = 0;
-            foreach (var i in context.MeetingEmployees)
+            if (!context.Employees.Any(x => x.Id == (context.MeetingEmployees.First(x => x.MeetingId == meetingId && x.RoleId == 1).Id)))
             {
-                if (i.MeetingId == meetingId && i.RoleId == 1)
-                {
-                    tempId = i.EmployeeId;
-                }
+                throw new Exception($"На совещании с id = {meetingId} нет организатора");
             }
-            foreach (var i in context.Employees)
+            else
             {
-                if (i.Id == tempId)
+                Employee organizer = context.Employees.First(x => x.Id == (context.MeetingEmployees.First(x => x.MeetingId == meetingId && x.RoleId == 1).Id));
+                return new EmployeeDTO()
                 {
-                    return new EmployeeDTO()
-                    {
-                        Id = i.Id,
-                        Name = i.Name,
-                    };
-                }
+                    Id = organizer.Id,
+                    Name = organizer.Name,
+                };
             }
-            return null;
+            
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using MeetingApplication.Entities;
 using MeetingApplication.Interfaces;
 using MeetingApplication.DTO;
+using MeetingApplication.Services;
 
 namespace MeetingApplication.Controllers
 {
@@ -19,14 +20,14 @@ namespace MeetingApplication.Controllers
         }
 
         // получить список совещаний
-        [HttpGet("GetMeetings")]
+        [HttpGet]
         public IList<MeetingDTO> GetMeetings()
         {
             return meetingService.GetMeetings();
         }
 
-        // получить список совещаний
-        [HttpGet("GetMeetingsUnited")]
+        // получить список совещаний без пауз между совещаниями
+        [HttpGet("United")]
         public IList<MeetingDTO> GetMeetingsUnited()
         {
             return meetingService.GetMeetingsUnited();

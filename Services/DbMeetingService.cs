@@ -17,11 +17,12 @@ namespace MeetingApplication.Services
         // метод возврата таблицы Meeting в виде списка
         public IList<MeetingDTO> GetMeetings()
         {
-            return context.Meetings.Select(x => new MeetingDTO 
-            { 
-                Id = x.Id, 
-                Name = x.Name, 
-                Time = Math.Floor(((TimeSpan)(x.EndDate - x.StartDate)).TotalMinutes) 
+
+            return context.Meetings.Select(x => new MeetingDTO
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Time = Math.Floor(((TimeSpan)(x.EndDate - x.StartDate)).TotalMinutes)
             }).ToList();
         }
 
@@ -63,6 +64,5 @@ namespace MeetingApplication.Services
             }
             return outputList.ToList();
         }
-
     }
 }

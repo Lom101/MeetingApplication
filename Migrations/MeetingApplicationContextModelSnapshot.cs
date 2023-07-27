@@ -7,21 +7,21 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Application.Migrations
+namespace MeetingApplication.Migrations
 {
     [DbContext(typeof(MeetingApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    partial class MeetingApplicationContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.8")
+                .HasAnnotation("ProductVersion", "7.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Application.Employee", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,7 +37,7 @@ namespace Application.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("Application.Meeting", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Meeting", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -51,15 +51,20 @@ namespace Application.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProjectId");
+
                     b.ToTable("Meetings");
                 });
 
-            modelBuilder.Entity("Application.MeetingEmployee", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.MeetingEmployee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,7 +92,7 @@ namespace Application.Migrations
                     b.ToTable("MeetingEmployees");
                 });
 
-            modelBuilder.Entity("Application.MeetingQuestion", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.MeetingQuestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,7 +115,23 @@ namespace Application.Migrations
                     b.ToTable("MeetingQuestions");
                 });
 
-            modelBuilder.Entity("Application.Question", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Project", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Project");
+                });
+
+            modelBuilder.Entity("MeetingApplication.Entities.Question", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -121,15 +142,20 @@ namespace Application.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("text");
 
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProjectId");
+
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("Application.Role", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -145,21 +171,32 @@ namespace Application.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("Application.MeetingEmployee", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Meeting", b =>
                 {
-                    b.HasOne("Application.Employee", "Employee")
+                    b.HasOne("MeetingApplication.Entities.Project", "Project")
+                        .WithMany("Meeting")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("MeetingApplication.Entities.MeetingEmployee", b =>
+                {
+                    b.HasOne("MeetingApplication.Entities.Employee", "Employee")
                         .WithMany("MeetingEmployee")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Application.Meeting", "Meeting")
-                        .WithMany("MeetingEmployees")
+                    b.HasOne("MeetingApplication.Entities.Meeting", "Meeting")
+                        .WithMany("MeetingEmployee")
                         .HasForeignKey("MeetingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Application.Role", "Role")
+                    b.HasOne("MeetingApplication.Entities.Role", "Role")
                         .WithMany("MeetingEmployee")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -172,15 +209,15 @@ namespace Application.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Application.MeetingQuestion", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.MeetingQuestion", b =>
                 {
-                    b.HasOne("Application.Meeting", "Meeting")
+                    b.HasOne("MeetingApplication.Entities.Meeting", "Meeting")
                         .WithMany("MeetingQuestion")
                         .HasForeignKey("MeetingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Application.Question", "Question")
+                    b.HasOne("MeetingApplication.Entities.Question", "Question")
                         .WithMany("MeetingQuestion")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -191,24 +228,42 @@ namespace Application.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("Application.Employee", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Question", b =>
+                {
+                    b.HasOne("MeetingApplication.Entities.Project", "Project")
+                        .WithMany("Question")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("MeetingApplication.Entities.Employee", b =>
                 {
                     b.Navigation("MeetingEmployee");
                 });
 
-            modelBuilder.Entity("Application.Meeting", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Meeting", b =>
                 {
-                    b.Navigation("MeetingEmployees");
+                    b.Navigation("MeetingEmployee");
 
                     b.Navigation("MeetingQuestion");
                 });
 
-            modelBuilder.Entity("Application.Question", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Project", b =>
+                {
+                    b.Navigation("Meeting");
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("MeetingApplication.Entities.Question", b =>
                 {
                     b.Navigation("MeetingQuestion");
                 });
 
-            modelBuilder.Entity("Application.Role", b =>
+            modelBuilder.Entity("MeetingApplication.Entities.Role", b =>
                 {
                     b.Navigation("MeetingEmployee");
                 });

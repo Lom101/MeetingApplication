@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MeetingApplication.Entities;
 using MeetingApplication.Interfaces;
 using MeetingApplication.DTO;
+using Microsoft.Extensions.Options;
 
 public class MeetingApplicationContext : DbContext
 {
@@ -15,6 +16,7 @@ public class MeetingApplicationContext : DbContext
 
     public MeetingApplicationContext(DbContextOptions<MeetingApplicationContext> options) : base(options)
     {
+
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

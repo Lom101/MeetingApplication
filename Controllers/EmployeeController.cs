@@ -14,7 +14,7 @@ namespace MeetingApplication.Controllers
             this.employeeService = employeeService;
         }
 
-        [HttpGet("GetEmployees")]
+        [HttpGet]
         // получить список сотрудников
         public IList<EmployeeDTO> GetEmployees()
         {

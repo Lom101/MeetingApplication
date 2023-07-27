@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Application.Migrations
+namespace MeetingApplication.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -26,32 +26,16 @@ namespace Application.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Meetings",
+                name: "Project",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: true),
-                    StartDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                    Name = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Meetings", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Questions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(type: "text", nullable: true),
-                    Content = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Questions", x => x.Id);
+                    table.PrimaryKey("PK_Project", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -68,27 +52,44 @@ namespace Application.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MeetingQuestions",
+                name: "Meetings",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MeetingId = table.Column<int>(type: "integer", nullable: false),
-                    QuestionId = table.Column<int>(type: "integer", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    ProjectId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MeetingQuestions", x => x.Id);
+                    table.PrimaryKey("PK_Meetings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MeetingQuestions_Meetings_MeetingId",
-                        column: x => x.MeetingId,
-                        principalTable: "Meetings",
+                        name: "FK_Meetings_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Questions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "text", nullable: true),
+                    Content = table.Column<string>(type: "text", nullable: true),
+                    ProjectId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Questions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MeetingQuestions_Questions_QuestionId",
-                        column: x => x.QuestionId,
-                        principalTable: "Questions",
+                        name: "FK_Questions_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -126,6 +127,32 @@ namespace Application.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MeetingQuestions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MeetingId = table.Column<int>(type: "integer", nullable: false),
+                    QuestionId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MeetingQuestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MeetingQuestions_Meetings_MeetingId",
+                        column: x => x.MeetingId,
+                        principalTable: "Meetings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MeetingQuestions_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_MeetingEmployees_EmployeeId",
                 table: "MeetingEmployees",
@@ -150,6 +177,16 @@ namespace Application.Migrations
                 name: "IX_MeetingQuestions_QuestionId",
                 table: "MeetingQuestions",
                 column: "QuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meetings_ProjectId",
+                table: "Meetings",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Questions_ProjectId",
+                table: "Questions",
+                column: "ProjectId");
         }
 
         /// <inheritdoc />
@@ -172,6 +209,9 @@ namespace Application.Migrations
 
             migrationBuilder.DropTable(
                 name: "Questions");
+
+            migrationBuilder.DropTable(
+                name: "Project");
         }
     }
 }

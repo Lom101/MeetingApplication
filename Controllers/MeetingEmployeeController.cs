@@ -4,9 +4,12 @@ using MeetingApplication.Interfaces;
 using MeetingApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+// экшн фильтр с эксэпшн фильтр
+// asp.net core middleware
+// манадо резалт
+//  композиция (способы ассоциации) агрегация. разница
 namespace MeetingApplication.Controllers
-{
+{ 
     [ApiController]
     [Route("[controller]")]
     public class MeetingEmployeeController : Controller
@@ -19,52 +22,45 @@ namespace MeetingApplication.Controllers
         }
 
         // получить список MeetingEmployee
-        [HttpGet("GetMeetingEmployee")]
+        [HttpGet]
         public IList<MeetingEmployeeDTO> GetMeetingEmployee()
         {
             return meetingEmployeeService.GetMeetingEmployee();
         }
 
         // добавить новую запись в MeetingEmployee
-        [HttpPost("AddMeetingEmployee")]
-        public void AddMeetingEmployee()
+        [HttpPost]
+        public void AddMeetingEmployee([FromBody] MeetingEmployee meetingEmployee)
         {
-            var data = new MeetingEmployeeDTO
-            {
-                MeetingId = 3,
-                EmployeeId = 4,
-                RoleId = 3,
-            };
-            meetingEmployeeService.AddMeetingEmployee(data.MeetingId, data.EmployeeId, data.RoleId);
+            meetingEmployeeService.AddMeetingEmployee(meetingEmployee.MeetingId, meetingEmployee.EmployeeId, meetingEmployee.RoleId);
+        }
+
+        // удалить запись в MeetingEmployee
+        [HttpDelete("{id}")]
+        public void DeleteMeetingEmployee(int id)
+        {
+            meetingEmployeeService.DeleteMeetingEmployee(id);
         }
 
         // проверка можно ли добавить организатора в совещание
-        [HttpGet("PossibleToAddOrganizer")]
-        public bool PossibleToAddOrganizer()
+        [HttpGet("PossibleToAddOrganizerCheck/{id}")]
+        public bool PossibleToAddOrganizerCheck(int id)
         {
-            var data = new MeetingEmployeeDTO
-            {
-                MeetingId = 1
-            };
-            return meetingEmployeeService.PossibleToAddOrganizer(data.MeetingId);
+            return meetingEmployeeService.PossibleToAddOrganizerCheck(id);
         }
 
         // проверка находится ли сотрудник в данный момент на другом совещании
-        [HttpGet("EmployeeInAnotherMeetingCheck")]
-        public bool EmployeeInAnotherMeetingCheck()
+        [HttpGet("EmployeeInAnotherMeetingCheck/{id}")]
+        public bool EmployeeInAnotherMeetingCheck(int id)
         {
-            var data = new MeetingEmployeeDTO
-            {
-                EmployeeId = 1,
-            };
-            return meetingEmployeeService.EmployeeInAnotherMeetingCheck(data.EmployeeId);
+            return meetingEmployeeService.EmployeeInAnotherMeetingCheck(id);
         }
 
         // получить организатора совещания
-        [HttpGet("GetOrganizer")]
-        public EmployeeDTO? GetOrganizer(int meetingId)
+        [HttpGet("GetOrganizer/{id}")]
+        public EmployeeDTO GetOrganizer(int id)
         {
-            return meetingEmployeeService.GetOrganizer(meetingId);
+            return meetingEmployeeService.GetOrganizer(id);
         }
     }
 }

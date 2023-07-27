@@ -13,7 +13,10 @@ namespace MeetingApplication.Entities
         [Column(TypeName = "timestamp without time zone")]
         public DateTime? EndDate { get; set; }
 
-        public List<MeetingEmployee>? MeetingEmployees { get; set; }
+        public List<MeetingEmployee>? MeetingEmployee { get; set; }
         public List<MeetingQuestion>? MeetingQuestion { get; set; }
+
+        public int ProjectId { get; set; }
+        public Project? Project { get; set; }
     }
 }
